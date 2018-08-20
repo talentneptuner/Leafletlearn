@@ -8,6 +8,7 @@
 <body>
 <div style="height: 700px" id="mymap"></div>
 <button onclick="begin()">开始画图</button>
+<button onclick="changeColor()">点击事件</button>
 <script src="../static/js/leaflet.js" ></script>
 <script src="../static/js/leaflet-src.js"></script>
 <script src="../static/js/Leaflet.Editable.js"></script>
@@ -67,11 +68,24 @@
         snapMarker.remove()
     })
 
+    mymap.on('editable:vertex:dragstart',function (e) {
+        snap_marker.watchMarker(e.vertex)
+        snap_marker.clearGuideLayers()
+        addSnapGuideLayersForMarker(e)
+    })
+
+    mymap.off('editable:vertex:dragend',function (e) {
+        snap_marker.unwatchMarker(e.vertex)
+        snap_marker.clearGuideLayers()
+    })
+
     mymap.on('editable:drawing:click',function (e) {
         var latlng = snapMarker.getLatLng()
         e.latlng.lat = latlng.lat
         e.latlng.lng = latlng.lng
     })
+
+
 
 
 </script>
@@ -104,6 +118,19 @@
         }
     }
 
+</script>
+<script>
+    function changeColor() {
+        for (i in mymap._layers){
+            layer = mymap._layers[i]
+            if (layer instanceof L.Polyline){
+                console.log(layer._leaflet_id)
+                layer.on('click',function (e) {
+                    this.setStyle({color:'red'})
+                })
+                }
+            }
+    }
 </script>
 </body>
 </html>
