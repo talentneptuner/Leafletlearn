@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../static/css/leaflet.css" >
+    <meta charset="UTF-8">
+    <title>画图</title>
+</head>
+<body>
+<div style="height: 700px" id="mymap"></div>
+<button onclick="rese()">解除绑定</button>
+<button onclick="check()">类型检测</button>
+<script src="../static/js/leaflet.js" ></script>
+<script src="../static/js/leaflet-src.js"></script>
+<script src="../static/js/leaflet.geometryutil.js"></script>
+<script src="../static/js/leaflet.snap.js"></script>
+<script>
+
+
+    var mymap = L.map('mymap').setView([30.50, 114.33],18);
+
+    var mapboxtl = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 30,
+        id: 'mapbox.streets',
+        accessToken: 'pk.eyJ1IjoidGFsZW50bmVwdHVuZXIiLCJhIjoiY2pra2tiOXBmMXJmNDN3bzkzZGwyOGkzZCJ9.kxJs9LZLMx9XB2KTT8sB8Q'
+    });
+
+    var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        subdomains: "1234",
+        maxZoom: 18, //25
+        minZoom: 1,
+
+    })
+
+    gdmap.addTo(mymap);
+    //绘制线段
+    var line = L.polyline([
+        //绘制多边形只需要多加几个点
+        [30.50,114.33],
+        [30.5014,114.3288]
+    ],
+        {
+            color:'blue',
+        }
+    )
+    line.addTo(mymap)
+
+    //绘制多边形
+    var pot = L.polygon([
+            //绘制多边形只需要多加几个点
+            [30.50,114.33],
+            [30.4976,114.3322],
+            [30.5012,114.3315],
+        ],
+        {
+            color:'green',
+            //还可以使用fillColor，fillOpacity设置填充
+            fillColor:'lightgreen',
+            fillOpacity:'0.5',
+        }
+    )
+    pot.addTo(mymap)
+
+    //绘制圆形
+    var cir = L.circle([30.5014,114.3288],{
+        radius:100,
+        color:'red',
+        fillColor: 'lightred',
+        fillOpacity: '0.5',
+    })
+    cir.addTo(mymap)
+
+    //除此之外，还有长方形，圆标记，等等
+
+    var marker = L.marker([30.50,114.33]).addTo(mymap);
+    var snap = new L.Handler.MarkerSnap(mymap, marker,{
+        snapDistance : 10,
+        snapVertices : true
+    });
+    snap.addGuideLayer(line);
+    //snap.enable();
+    p1 = L.latLng([30.50,114.33])
+    p2 = L.latLng([30.5014,114.3288])
+    p11 = mymap.latLngToLayerPoint(p1)
+    p21 = mymap.latLngToLayerPoint(p2)
+    marker.on('drag',function (e) {
+         p = mymap.latLngToLayerPoint(L.latLng([e.latlng.lat,e.latlng.lng]));
+         console.log(L.LineUtil.pointToSegmentDistance(p,p11,p21))
+     })
+
+    function rese() {
+        snap.unwatchMarker(marker);
+    }
+
+    function check() {
+        for (layer in mymap._layers){
+            if (layer instanceof L.polyline){
+                console.log('ddddd')
+            }
+        }
+    }
+
+
+</script>
+</body>
+</html>

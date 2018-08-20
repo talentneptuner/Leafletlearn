@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/css/leaflet.css" >
+</head>
+<body>
+<div id="mapid" style="height: 700px"></div>
+<button onclick="address()">切换中心点</button>
+<button onclick="showinfo()">显示地图信息</button>
+<button onclick="checktl()">检测图层是否为mapbox</button>
+<button onclick="marker()">添加一个marker</button>
+<button onclick="pop()">添加一个弹出框</button>
+<p id="info"></p>
+<p id="lat"></p>
+
+
+<script src="../static/js/leaflet.js" ></script>
+<script src="../static/js/leaflet-src.js"></script>
+
+<script>
+
+
+
+
+
+
+    //创建一个地图对象
+    /*
+    zoom：缩放级别
+    layers：图层
+    minZoom：最小视图，同理有最大
+    dragging：决定地图是否可拖动，还有可否滚轮，可否双击
+    closePopupOnClick：点击地图关闭提示框
+    事件：focus，blur，movestart，move，viewreset，layeradd，openPopup，openTiiltip
+    */
+    var mymap = L.map('mapid', {
+        center: [30.50, 114.33],
+        zoom: 20,
+        // layers: [Gaode],
+    })
+    //设置一个弹出框
+    /*var mypop = L.Popup();
+    mymap.on('click',function (e) {
+        var info = document.getElementById('lat');
+        info.innerText =e.latlng.lat.toString()+','+e.latlng.lng.toString()
+        //设置弹出框
+        mypop.setLatLng(e.latlng).setContent(e.latlng.toString()).openOn(mymap);
+    })*/
+
+    //创建一个图层，使用的是mapbox的图层
+    //定义了一个图层，前面的是url地址，后面的是选项
+    var mapboxtl = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        accessToken: 'pk.eyJ1IjoidGFsZW50bmVwdHVuZXIiLCJhIjoiY2pra2tiOXBmMXJmNDN3bzkzZGwyOGkzZCJ9.kxJs9LZLMx9XB2KTT8sB8Q'
+    })
+    mapboxtl.addTo(mymap)
+
+
+
+    // L.control.layers(baseLayers, null).addTo(mymap);
+    //zoom代表的是放大缩小操作
+    L.control.zoom({
+        zoomInTitle: '放大地图',
+        zoomOutTitle: '缩小地图'
+    }).addTo(mymap);
+
+    function address() {
+        //利用setView来设置地图中心点以及缩放级别
+        /*
+        setZoom设置地图缩放，Zoomin，Zoomout
+        PanTo将地图平移到给定的中心
+        locate用于定位用户
+        destory销毁地图
+         */
+        mymap.setView(
+            [31.56,114.09],
+            20
+        )
+    }
+
+    //用于获取地图的相关内容
+    function showinfo() {
+        var info = document.getElementById('info');
+        content = '中心：'+mymap.getCenter().toString()+'经纬度边界'+mymap.getBounds().toString()+'缩放级别'+mymap.getZoom().toString();
+        info.innerHTML = content;
+    }
+
+    //检验图层
+    function checktl() {
+        var info = document.getElementById('info')
+        info.innerHTML = mymap.hasLayer(mapboxtl);
+        //相关的图层操作
+        /*
+        addLayer传入两个参数图层，布尔值表明在现有图层之上
+        removeLayer移除图层
+         */
+    }
+
+    //添加一个marker
+    var mark = L.marker([30.50, 114.33],{
+        draggable:true,
+    })
+
+    function marker() {
+        mark.addTo(mymap);
+    }
+
+    //添加一个弹出框
+    var mypop = L.popup()
+    function pop() {
+        mypop.setLatLng([30.50, 114.33]).setContent('洪山区正中').openOn(mymap);
+
+    }
+
+
+
+</script>
+</body>
+</html>

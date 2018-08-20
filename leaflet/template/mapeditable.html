@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/css/leaflet.css" >
+</head>
+<body>
+<div id="mapid" style="height: 700px"></div>
+<button onclick="begin()">开始画线</button>
+<button onclick="end()">结束画线</button>
+
+
+<script src="../static/js/leaflet.js" ></script>
+<script src="../static/js/leaflet-src.js"></script>
+<script src="../static/js/Leaflet.Editable.js"></script>
+<script src="../static/js/leaflet.geometryutil.js"></script>
+<script src="../static/js/leaflet.snap.js"></script>
+
+<script>
+
+
+
+
+
+
+
+    var mymap = L.map('mapid', {
+        center: [30.50, 114.33],
+        zoom: 20,
+        editable: true,
+        // layers: [Gaode],
+    })
+
+    var mapboxtl = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        accessToken: 'pk.eyJ1IjoidGFsZW50bmVwdHVuZXIiLCJhIjoiY2pra2tiOXBmMXJmNDN3bzkzZGwyOGkzZCJ9.kxJs9LZLMx9XB2KTT8sB8Q'
+    })
+    var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        subdomains: "1234",
+        maxZoom: 18, //25
+        minZoom: 1,
+
+    })
+
+    gdmap.addTo(mymap);
+
+    L.marker([30.50, 114.33],{
+        draggable:true
+    }).addTo(mymap)
+
+
+
+    mymap.on('editable:drawing:end', onDrawingEnd);
+    mymap.on('editable:vertex:click',function (e) {
+        console.log('点击了一个新的点');
+    })
+    mymap.on('editable:vertex:new',function (e) {
+        console.log('建立了一个新的点');
+    })
+    mymap.on('editable:vertex:clicked',function (e) {
+        console.log('点击完了一个新的点');
+    })
+    mymap.on('editable:vertex:deleted',function (e) {
+        console.log('删除了一个新的点');
+    })
+    mymap.on('editable:vertex:dragstart',function (e) {
+        console.log(e.layer,e._path);
+        console.log('开始拉了开始拉了');
+    })
+    mymap.on('editable:vertex:dragend',function (e) {
+        console.log('结束拉了结束拉了');
+    })
+    mymap.on('editable:vertex:drag',function (e) {
+        console.log('拉了拉了');
+    })
+    mymap.on('editable:dragend', function () {
+        console.log('拖动结束事件')
+    });//拖动结束
+    mymap.on('editable:middlemarker:mousedown', function () {
+        console.log('中间点事件')
+    });//添加顶点
+    mymap.on('mousedown', function () {
+        console.log('鼠标按下事件')
+    });//按下鼠标
+
+
+
+
+
+    function onDrawingEnd() {
+       alert('画图结束');
+    }
+
+    function begin() {
+        mymap.editTools.startPolyline();
+    }
+
+    function end() {
+        mymap.editTools.stopDrawing();
+    }
+
+    L.map.onclick = function (e) {
+        console.log('ddd');
+    }
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

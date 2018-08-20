@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="../static/css/leaflet.css" >
+    <meta charset="UTF-8">
+    <title>画线连接</title>
+</head>
+<body>
+<div style="height: 700px" id="mymap"></div>
+<button onclick="begin()">开始画图</button>
+<script src="../static/js/leaflet.js" ></script>
+<script src="../static/js/leaflet-src.js"></script>
+<script src="../static/js/Leaflet.Editable.js"></script>
+<script src="../static/js/leaflet.geometryutil.js"></script>
+<script src="../static/js/leaflet.snap.js"></script>
+<script>
+
+
+    // 初始化地图
+    var mymap = L.map('mymap',{
+        editable:true
+    }).setView([30.50, 114.33],18);
+
+    var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        subdomains: "1234",
+        maxZoom: 18, //25
+        minZoom: 1,
+
+    })
+
+    gdmap.addTo(mymap);
+
+    var target = []
+
+    //吸附点和吸附监听器
+    snapMarker = L.marker(mymap.getCenter(),{
+        icon: mymap.editTools.createVertexIcon({className: 'leaflet-div-icon leaflet-drawing-icon'}),
+        opacity : 1,
+        zIndexOffset : 1000,
+    })
+    snap_marker = new L.Handler.MarkerSnap(mymap,{
+        snapDistance:20,
+        snapVertices:true,
+    })
+
+    var followMouse = function (e){
+        snapMarker.setLatLng(e.latlng)
+    }
+
+    mymap.on('editable:drawing:start',function (e) {
+        snap_marker.watchMarker(snapMarker)
+        snap_marker.clearGuideLayers()
+        addSnapGuideLayersForMarker(e)
+        mymap.on('mousemove',followMouse)
+    })
+
+    mymap.on('editable:drawing:end',function (e) {
+        snap_marker.unwatchMarker(snapMarker)
+        snap_marker.clearGuideLayers()
+        mymap.off('mousemove',followMouse)
+    })
+
+    snapMarker.on('snap',function (e) {
+        snapMarker.addTo(mymap)
+    })
+    snapMarker.on('unsnap',function (e) {
+        snapMarker.remove()
+    })
+
+    mymap.on('editable:drawing:click',function (e) {
+        var latlng = snapMarker.getLatLng()
+        e.latlng.lat = latlng.lat
+        e.latlng.lng = latlng.lng
+    })
+
+
+</script>
+<script>
+    function begin() {
+        var latlng
+        mymap.editTools.startPolyline(latlng,{
+            renderer : new L.Canvas()
+        });
+    }
+
+    function hasLink() {
+        for (let i in mymap._layers){
+            if (mymap._layers[i] instanceof L.Polyline){
+                return true
+            }
+        }
+        return false
+    }
+
+    function addSnapGuideLayersForMarker(e) {
+        if(!hasLink()){
+            return
+        }
+        for(let i in mymap._layers){
+            if (mymap._layers[i] instanceof L.Polyline){
+                target.push(mymap._layers[i])
+                snap_marker.addGuideLayer(mymap._layers[i])
+            }
+        }
+    }
+
+</script>
+</body>
+</html>
+
