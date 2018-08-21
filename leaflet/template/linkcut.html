@@ -127,7 +127,15 @@
         if (target.length) {
             var _subject = ConvertPointArray(subject)
             var _target = ConvertPointArray(target[0])
-            checkCross(_subject, _target)
+            var result = checkCross(_subject, _target)
+            if (result.target_type === 2){
+                result.target[0].node = false
+                reCreateLink(target[0],result.target)
+            }
+            if (result.subject_type === 2){
+                result.subject[0].node = false
+                reCreateLink(subject,result.subject)
+            }
 
         }
     }
@@ -169,17 +177,77 @@
         }
         for (j = 0; j < target.length - 1; j++) {
             var tar_link = []
-            tar_link.push(target[i])
-            tar_link.push(target[i + 1])
+            tar_link.push(target[j])
+            tar_link.push(target[j + 1])
             tar_links.push(tar_link)
         }
 
         for (i=0;i<subject.length-1;i++){
             for (j=0;j<target.length-1;j++){
                 var cross = getInsectionPoint(subject[i],subject[i+1],target[j],target[j+1])
-                console.log(cross)
+
+                if (cross){
+                    var _cross = {
+                        latlng : {lat:cross.lat,lng:cross.lng},
+                        node : false
+                    }
+
+                    var index_tar = getIndexOfArray(cross,tar_links[j])
+                    var index_sub = getIndexOfArray(cross,sub_links[i])
+
+                    var tar_s_distance = cross.distanceTo(L.latLng(target[j].latlng.lat,target[j].latlng.lng))
+                    var tar_e_distance = cross.distanceTo(L.latLng(target[j+1].latlng.lat,target[j+1].latlng.lng))
+
+                    var sub_s_distance = cross.distanceTo(L.latLng(subject[i].latlng.lat,subject[i].latlng.lng))
+                    var sub_e_distance = cross.distanceTo(L.latLng(subject[i+1].latlng.lat,subject[i+1].latlng.lng))
+
+                    // console.log(tar_s_distance,tar_e_distance)
+                    // console.log(sub_s_distance,sub_e_distance)
+                    if (tar_e_distance>0.1 && tar_s_distance>0.1){
+                        tar_links[j].splice(index_tar,0,_cross)
+                        result.target_type = 2
+                    }
+
+                    if (sub_e_distance>0.1 && sub_s_distance>0.1){
+                        sub_links[i].splice(index_sub,0,_cross)
+                        result.subject_type = 2
+                        // console.log(sub_links)
+                    }
+
+                }
             }
         }
+
+        var tar_result = []
+        var last_link
+        var last_node
+        last_link = tar_links[tar_links.length-1]
+        last_node = last_link[last_link.length-1]
+        // console.log(last_link)
+        // console.log(last_node)
+        for (i=0;i<tar_links.length;i++){
+            for(j=0;j<tar_links[i].length-1;j++){
+                var item = tar_links[i][j]
+                tar_result.push(item)
+            }
+        }
+        tar_result.push(last_node)
+        // console.log(tar_result)
+
+        var sub_result = []
+        last_link = sub_links[sub_links.length-1]
+        last_node = last_link[last_link.length-1]
+        for(i=0;i<sub_links.length;i++){
+            for(j=0;j<sub_links[i].length-1;j++){
+                var item = sub_links[i][j]
+                sub_result.push(item)
+            }
+        }
+        sub_result.push(last_node)
+        result.subject = sub_result
+        result.target = tar_result
+
+        return result
 
 
     }
@@ -231,6 +299,41 @@
             }
         }
         return null
+    }
+
+    function reCreateLink(old_layer,latlngs) {
+        // console.log(old_layer.getLatLngs(),latlngs)
+        var i
+        var new_latlngs = []
+        var new_links
+        for (i=0;i<latlngs.length;i++){
+            new_latlngs.push(latlngs[i].latlng)
+            if (latlngs[i].node){
+                new_links = L.polyline(new_latlngs)
+            }
+        }
+        mymap.removeLayer(old_layer)
+        new_links.addTo(mymap)
+        new_links.enableEdit()
+        return new_links
+
+    }
+
+    function getIndexOfArray(point,array) {
+        var i
+        for (i=0;i<array.length-1;i++){
+            var p_p1 = mymap.latLngToLayerPoint(L.latLng(point.lat,point.lng))
+            var p_l1 = mymap.latLngToLayerPoint(L.latLng(array[i].latlng.lat,array[i].latlng.lng))
+            var p_l2 = mymap.latLngToLayerPoint(L.latLng(array[i+1].latlng.lat,array[i+1].latlng.lng))
+
+            if(L.LineUtil.pointToSegmentDistance(p_p1,p_l1,p_l2) <= 1){
+                return i+1
+            }
+
+        }
+
+        return array.length
+
     }
 </script>
 </body>
