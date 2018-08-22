@@ -200,15 +200,17 @@
 
                     var sub_s_distance = cross.distanceTo(L.latLng(subject[i].latlng.lat,subject[i].latlng.lng))
                     var sub_e_distance = cross.distanceTo(L.latLng(subject[i+1].latlng.lat,subject[i+1].latlng.lng))
+                    console.log(tar_s_distance,tar_e_distance)
+                    console.log(sub_s_distance,sub_e_distance)
 
                     // console.log(tar_s_distance,tar_e_distance)
                     // console.log(sub_s_distance,sub_e_distance)
-                    if (tar_e_distance>0.1 && tar_s_distance>0.1){
+                    if (tar_e_distance>0.2 && tar_s_distance>0.2){
                         tar_links[j].splice(index_tar,0,_cross)
                         result.target_type = 2
                     }
 
-                    if (sub_e_distance>0.1 && sub_s_distance>0.1){
+                    if (sub_e_distance>0.2 && sub_s_distance>0.2){
                         sub_links[i].splice(index_sub,0,_cross)
                         result.subject_type = 2
                         // console.log(sub_links)
@@ -228,7 +230,10 @@
         for (i=0;i<tar_links.length;i++){
             for(j=0;j<tar_links[i].length-1;j++){
                 var item = tar_links[i][j]
-                tar_result.push(item)
+                if ((tar_result.length==0)|| comparePoint(item,tar_result[tar_result.length-1]))
+                {
+                    tar_result.push(item)
+                }
             }
         }
         tar_result.push(last_node)
@@ -240,10 +245,15 @@
         for(i=0;i<sub_links.length;i++){
             for(j=0;j<sub_links[i].length-1;j++){
                 var item = sub_links[i][j]
-                sub_result.push(item)
+                if ((sub_result.length==0)|| comparePoint(item,sub_result[sub_result.length-1]))
+                {
+                    sub_result.push(item)
+                }
+                //sub_result.push(item)
             }
         }
         sub_result.push(last_node)
+
         result.subject = sub_result
         result.target = tar_result
 
@@ -334,6 +344,18 @@
 
         return array.length
 
+    }
+
+    function comparePoint(p1,p2) {
+        var p_p1 = L.latLng(p1.latlng.lat,p1.latlng.lng)
+        console.log(p2)
+        var p_p2 = L.latLng(p2.latlng.lat,p2.latlng.lng)
+        if (p_p1.distanceTo(p_p2)<0.2){
+            return false
+        }
+        else {
+            return true
+        }
     }
 </script>
 </body>
