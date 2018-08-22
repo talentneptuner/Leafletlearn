@@ -131,14 +131,17 @@
                 var _subject = ConvertPointArray(subject)
                 var _target = ConvertPointArray(target[i])
                 var result = checkCross(_subject, _target)
+                _subject = result.subject
+                _target = result.target
                 if (result.target_type === 2){
                     result.target[0].node = false
-                    reCreateLink(target[i],result.target)
+                    reCreateLink(target[i],_target)
                 }
-                if (result.subject_type === 2){
-                    result.subject[0].node = false
-                    subject = reCreateLink(subject,result.subject)
-                }
+
+            }
+            if (result.subject_type === 2){
+                result.subject[0].node = false
+                subject = reCreateLink(subject,_subject)
             }
 
 
@@ -194,7 +197,7 @@
                 if (cross){
                     var _cross = {
                         latlng : {lat:cross.lat,lng:cross.lng},
-                        node : false
+                        node : true
                     }
 
                     var index_tar = getIndexOfArray(cross,tar_links[j])
@@ -212,7 +215,7 @@
                         tar_links[j].splice(index_tar,0,_cross)
                         result.target_type = 2
                     }
-                    
+
 
                     if (sub_e_distance>0.2 && sub_s_distance>0.2){
                         sub_links[i].splice(index_sub,0,_cross)
@@ -234,7 +237,7 @@
         for (i=0;i<tar_links.length;i++){
             for(j=0;j<tar_links[i].length-1;j++){
                 var item = tar_links[i][j]
-                if ((tar_result.length==0)|| comparePoint(item,tar_result[tar_result.length-1]))
+                if ((tar_result.length===0)|| comparePoint(item,tar_result[tar_result.length-1]))
                 {
                     tar_result.push(item)
                 }
@@ -249,7 +252,7 @@
         for(i=0;i<sub_links.length;i++){
             for(j=0;j<sub_links[i].length-1;j++){
                 var item = sub_links[i][j]
-                if ((sub_result.length==0)|| comparePoint(item,sub_result[sub_result.length-1]))
+                if ((sub_result.length===0)|| comparePoint(item,sub_result[sub_result.length-1]))
                 {
                     sub_result.push(item)
                 }
@@ -284,10 +287,10 @@
                 latlng: {lat: _latlngs[i].lat, lng: _latlngs[i].lng},
                 node: false
             }
-            if (i == 0) {
+            if (i === 0) {
                 tmp.node = true
             }
-            else if (i == (_latlngs.length - 1)) {
+            else if (i === (_latlngs.length - 1)) {
                 tmp.node = true
             }
             result.push(tmp)
@@ -324,11 +327,16 @@
             new_latlngs.push(latlngs[i].latlng)
             if (latlngs[i].node){
                 new_links = L.polyline(new_latlngs)
+                new_links.addTo(mymap)
+                new_links.enableEdit()
+                if (i<latlngs.length-1){
+                    new_latlngs = []
+                    new_latlngs.push(latlngs[i].latlng)
+                }
             }
         }
         mymap.removeLayer(old_layer)
-        new_links.addTo(mymap)
-        new_links.enableEdit()
+
         return new_links
 
     }
