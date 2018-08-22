@@ -124,18 +124,23 @@
 </script>
 <script>
     function splitCross(subject) {
+        var i
         if (target.length) {
-            var _subject = ConvertPointArray(subject)
-            var _target = ConvertPointArray(target[0])
-            var result = checkCross(_subject, _target)
-            if (result.target_type === 2){
-                result.target[0].node = false
-                reCreateLink(target[0],result.target)
+            for (i=0;i<target.length;i++)
+            {
+                var _subject = ConvertPointArray(subject)
+                var _target = ConvertPointArray(target[i])
+                var result = checkCross(_subject, _target)
+                if (result.target_type === 2){
+                    result.target[0].node = false
+                    reCreateLink(target[i],result.target)
+                }
+                if (result.subject_type === 2){
+                    result.subject[0].node = false
+                    subject = reCreateLink(subject,result.subject)
+                }
             }
-            if (result.subject_type === 2){
-                result.subject[0].node = false
-                reCreateLink(subject,result.subject)
-            }
+
 
         }
     }
@@ -200,15 +205,14 @@
 
                     var sub_s_distance = cross.distanceTo(L.latLng(subject[i].latlng.lat,subject[i].latlng.lng))
                     var sub_e_distance = cross.distanceTo(L.latLng(subject[i+1].latlng.lat,subject[i+1].latlng.lng))
-                    console.log(tar_s_distance,tar_e_distance)
-                    console.log(sub_s_distance,sub_e_distance)
-
                     // console.log(tar_s_distance,tar_e_distance)
                     // console.log(sub_s_distance,sub_e_distance)
+
                     if (tar_e_distance>0.2 && tar_s_distance>0.2){
                         tar_links[j].splice(index_tar,0,_cross)
                         result.target_type = 2
                     }
+                    
 
                     if (sub_e_distance>0.2 && sub_s_distance>0.2){
                         sub_links[i].splice(index_sub,0,_cross)
@@ -348,7 +352,7 @@
 
     function comparePoint(p1,p2) {
         var p_p1 = L.latLng(p1.latlng.lat,p1.latlng.lng)
-        console.log(p2)
+        //console.log(p2)
         var p_p2 = L.latLng(p2.latlng.lat,p2.latlng.lng)
         if (p_p1.distanceTo(p_p2)<0.2){
             return false

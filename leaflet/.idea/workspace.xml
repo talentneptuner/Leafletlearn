@@ -44,13 +44,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="8446" />
+          <entry key="html" value="8498" />
           <entry key="js" value="29" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="8446" />
+          <entry key="HTML" value="8498" />
           <entry key="JavaScript" value="29" />
         </counts>
       </usages-collector>
@@ -61,16 +61,14 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/template/linkcut.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="251" column="18" selection-start-line="251" selection-start-column="18" selection-end-line="251" selection-end-column="18" />
+            <state relative-caret-position="400">
+              <caret line="214" column="20" selection-start-line="214" selection-start-column="20" selection-end-line="214" selection-end-column="20" />
               <folding>
                 <element signature="e#2425#2548#0" />
                 <element signature="e#2573#2750#0" />
                 <element signature="e#2796#3039#0" />
                 <element signature="e#3066#3225#0" />
                 <element signature="e#7624#8295#0" />
-                <element signature="e#8352#9163#0" />
-                <element signature="e#9210#9660#0" />
                 <element signature="e#9704#10201#0" />
               </folding>
             </state>
@@ -93,6 +91,7 @@
       <find>L.Handler.Marker</find>
       <find>setStyle</find>
       <find>console</find>
+      <find>&lt;1</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -230,15 +229,15 @@
       <workItem from="1534731148743" duration="18526000" />
       <workItem from="1534815546042" duration="13116000" />
       <workItem from="1534899523236" duration="105000" />
-      <workItem from="1534905371171" duration="3038000" />
+      <workItem from="1534905371171" duration="7465000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="88978000" />
+    <option name="totallyTimeSpent" value="93405000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="878" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="878" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.110303834" />
@@ -366,16 +365,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/template/linkcut.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="251" column="18" selection-start-line="251" selection-start-column="18" selection-end-line="251" selection-end-column="18" />
+        <state relative-caret-position="400">
+          <caret line="214" column="20" selection-start-line="214" selection-start-column="20" selection-end-line="214" selection-end-column="20" />
           <folding>
             <element signature="e#2425#2548#0" />
             <element signature="e#2573#2750#0" />
             <element signature="e#2796#3039#0" />
             <element signature="e#3066#3225#0" />
             <element signature="e#7624#8295#0" />
-            <element signature="e#8352#9163#0" />
-            <element signature="e#9210#9660#0" />
             <element signature="e#9704#10201#0" />
           </folding>
         </state>
