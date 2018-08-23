@@ -13,6 +13,7 @@
     <button onclick="checkLink()">检测线段</button>
     <script src="../static/js/leaflet.js"></script>
     <script src="../static/js/leaflet-src.js"></script>
+    <script src="../static/js/Path.Drag.js"></script>
     <script src="../static/js/Leaflet.Editable.js"></script>
     <script src="../static/js/leaflet.geometryutil.js"></script>
     <script src="../static/js/leaflet.snap.js"></script>
@@ -69,6 +70,8 @@
             snap_marker.unwatchMarker(snapMarker)
             snap_marker.clearGuideLayers()
             mymap.off('mousemove', followMouse)
+            e.layer.on('dragstart', addToTarget)
+            e.layer.on('dragend', split)
             splitCross(e.layer)
         })
 
@@ -86,6 +89,7 @@
         })
 
         mymap.on('editable:vertex:dragstart', function(e) {
+            console.log('顶点移动了')
             target = []
             var i
             for (i in mymap._layers) {
@@ -95,9 +99,23 @@
             }
         })
         mymap.on('editable:vertex:dragend', function(e) {
-            console.log('ddd')
+            // console.log('ddd')
             splitCross(e.layer)
         })
+        var addToTarget = function(e) {
+            // console.log('拖动事件')
+            target = []
+            for (let i in mymap._layers) {
+                layer = mymap._layers[i]
+                if (layer instanceof L.Polyline && e.layer._leaflet_id !== mymap._layers[i]._leaflet_id) {
+                    target.push(layer)
+                }
+            }
+        }
+        var split = function(e) {
+            // console.log('拖动结束')
+            splitCross(e.layer)
+        }
     </script>
     <script>
         function begin() {
@@ -347,6 +365,8 @@
                     new_links = L.polyline(new_latlngs)
                     new_links.addTo(mymap)
                     new_links.enableEdit()
+                    new_links.on('dragstart', addToTarget)
+                    new_links.on('dragend', split)
                     if (i < latlngs.length - 1) {
                         new_latlngs = []
                         new_latlngs.push(latlngs[i].latlng)
