@@ -95,6 +95,7 @@
             }
         })
         mymap.on('editable:vertex:dragend', function(e) {
+            console.log('ddd')
             splitCross(e.layer)
         })
     </script>
@@ -137,7 +138,7 @@
     <script>
         function splitCross(subject) {
             var i
-            var _subject_type = 0
+            var _subject_type = false
             if (target.length) {
                 var _subject = ConvertPointArray(subject)
                 for (i = 0; i < target.length; i++) {
@@ -149,12 +150,12 @@
                         _target[0].node = false
                         reCreateLink(target[i], _target)
                     }
-                    if (_subject_type < result.subject_type) {
-                        _subject_type = result.subject_type
+                    if (result.subject_type) {
+                        _subject_type = true
                     }
 
                 }
-                if (result.subject_type === 2) {
+                if (_subject_type) {
                     _subject[0].node = false
                     subject = reCreateLink(subject, _subject)
                 }
