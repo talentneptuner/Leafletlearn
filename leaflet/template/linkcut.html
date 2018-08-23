@@ -1,375 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link rel="stylesheet" href="../static/css/leaflet.css">
     <meta charset="UTF-8">
     <title>画线打断</title>
 </head>
+
 <body>
-<div style="height: 700px" id="mymap"></div>
-<button onclick="begin()">开始画图</button>
-<button onclick="checkLink()">检测线段</button>
-<script src="../static/js/leaflet.js"></script>
-<script src="../static/js/leaflet-src.js"></script>
-<script src="../static/js/Leaflet.Editable.js"></script>
-<script src="../static/js/leaflet.geometryutil.js"></script>
-<script src="../static/js/leaflet.snap.js"></script>
-<script src="../static/js/math.js"></script>
-<script>
+    <div style="height: 700px" id="mymap"></div>
+    <button onclick="begin()">开始画图</button>
+    <button onclick="checkLink()">检测线段</button>
+    <script src="../static/js/leaflet.js"></script>
+    <script src="../static/js/leaflet-src.js"></script>
+    <script src="../static/js/Leaflet.Editable.js"></script>
+    <script src="../static/js/leaflet.geometryutil.js"></script>
+    <script src="../static/js/leaflet.snap.js"></script>
+    <script src="../static/js/math.js"></script>
+    <script>
+        // 初始化地图
+        var mymap = L.map('mymap', {
+            editable: true
+        }).setView([30.50, 114.33], 18);
 
+        var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            subdomains: "1234",
+            maxZoom: 18, //25
+            minZoom: 1,
 
-    // 初始化地图
-    var mymap = L.map('mymap', {
-        editable: true
-    }).setView([30.50, 114.33], 18);
+        })
 
-    var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-        subdomains: "1234",
-        maxZoom: 18, //25
-        minZoom: 1,
+        gdmap.addTo(mymap);
 
-    })
+        var target = []
 
-    gdmap.addTo(mymap);
+        //吸附点和吸附监听器
+        snapMarker = L.marker(mymap.getCenter(), {
+            icon: mymap.editTools.createVertexIcon({
+                className: 'leaflet-div-icon leaflet-drawing-icon'
+            }),
+            opacity: 1,
+            zIndexOffset: 1000,
+        })
+        snap_marker = new L.Handler.MarkerSnap(mymap, {
+            snapDistance: 15,
+            snapVertices: true,
+        })
 
-    var target = []
+        var followMouse = function(e) {
+            snapMarker.setLatLng(e.latlng)
+        }
 
-    //吸附点和吸附监听器
-    snapMarker = L.marker(mymap.getCenter(), {
-        icon: mymap.editTools.createVertexIcon({className: 'leaflet-div-icon leaflet-drawing-icon'}),
-        opacity: 1,
-        zIndexOffset: 1000,
-    })
-    snap_marker = new L.Handler.MarkerSnap(mymap, {
-        snapDistance: 15,
-        snapVertices: true,
-    })
+        mymap.on('editable:drawing:start', function(e) {
+            snap_marker.watchMarker(snapMarker)
+            snap_marker.clearGuideLayers()
+            addSnapGuideLayersForMarker(e)
+            mymap.on('mousemove', followMouse)
+            target = []
+            for (let i in mymap._layers) {
+                layer = mymap._layers[i]
+                if (layer instanceof L.Polyline) {
+                    target.push(layer)
+                }
+            }
+        })
 
-    var followMouse = function (e) {
-        snapMarker.setLatLng(e.latlng)
-    }
+        mymap.on('editable:drawing:end', function(e) {
+            snap_marker.unwatchMarker(snapMarker)
+            snap_marker.clearGuideLayers()
+            mymap.off('mousemove', followMouse)
+            splitCross(e.layer)
+        })
 
-    mymap.on('editable:drawing:start', function (e) {
-        snap_marker.watchMarker(snapMarker)
-        snap_marker.clearGuideLayers()
-        addSnapGuideLayersForMarker(e)
-        mymap.on('mousemove', followMouse)
-        target = []
-        for (let i in mymap._layers) {
-            layer = mymap._layers[i]
-            if (layer instanceof L.Polyline) {
-                target.push(layer)
+        snapMarker.on('snap', function(e) {
+            snapMarker.addTo(mymap)
+        })
+        snapMarker.on('unsnap', function(e) {
+            snapMarker.remove()
+        })
+
+        mymap.on('editable:drawing:click', function(e) {
+            var latlng = snapMarker.getLatLng()
+            e.latlng.lat = latlng.lat
+            e.latlng.lng = latlng.lng
+        })
+
+        mymap.on('editable:vertex:dragstart', function(e) {
+            target = []
+            var i
+            for (i in mymap._layers) {
+                if (mymap._layers[i] instanceof L.Polyline && mymap._layers[i]._leaflet_id !== e.layer._leaflet_id) {
+                    target.push(mymap._layers[i])
+                }
+            }
+        })
+        mymap.on('editable:vertex:dragend', function(e) {
+            splitCross(e.layer)
+        })
+    </script>
+    <script>
+        function begin() {
+            var latlng
+            mymap.editTools.startPolyline(latlng, {
+                renderer: new L.Canvas()
+            });
+        }
+
+        function hasLink() {
+            for (let i in mymap._layers) {
+                if (mymap._layers[i] instanceof L.Polyline) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        function addSnapGuideLayersForMarker(e) {
+            if (!hasLink()) {
+                return
+            }
+            for (let i in mymap._layers) {
+                if (mymap._layers[i] instanceof L.Polyline) {
+                    snap_marker.addGuideLayer(mymap._layers[i])
+                }
             }
         }
-    })
 
-    mymap.on('editable:drawing:end', function (e) {
-        snap_marker.unwatchMarker(snapMarker)
-        snap_marker.clearGuideLayers()
-        mymap.off('mousemove', followMouse)
-        splitCross(e.layer)
-    })
+        function checkLink() {
+            for (let i in mymap._layers) {
+                if (mymap._layers[i] instanceof L.Polyline) {
+                    console.log(i)
+                }
+            }
+        }
+    </script>
+    <script>
+        function splitCross(subject) {
+            var i
+            var _subject_type = 0
+            if (target.length) {
+                var _subject = ConvertPointArray(subject)
+                for (i = 0; i < target.length; i++) {
+                    var _target = ConvertPointArray(target[i])
+                    var result = checkCross(_subject, _target)
+                    _subject = result.subject
+                    _target = result.target
+                    if (result.target_type === 2) {
+                        _target[0].node = false
+                        reCreateLink(target[i], _target)
+                    }
+                    if (_subject_type < result.subject_type) {
+                        _subject_type = result.subject_type
+                    }
 
-    snapMarker.on('snap', function (e) {
-        snapMarker.addTo(mymap)
-    })
-    snapMarker.on('unsnap', function (e) {
-        snapMarker.remove()
-    })
-
-    mymap.on('editable:drawing:click', function (e) {
-        var latlng = snapMarker.getLatLng()
-        e.latlng.lat = latlng.lat
-        e.latlng.lng = latlng.lng
-    })
+                }
+                if (result.subject_type === 2) {
+                    _subject[0].node = false
+                    subject = reCreateLink(subject, _subject)
+                }
 
 
-</script>
-<script>
-    function begin() {
-        var latlng
-        mymap.editTools.startPolyline(latlng, {
-            renderer: new L.Canvas()
-        });
-    }
+            }
+        }
 
-    function hasLink() {
-        for (let i in mymap._layers) {
-            if (mymap._layers[i] instanceof L.Polyline) {
+        function checkCross(_subject, _target) {
+            var sub_links = []
+            var tar_links = []
+            var subject = []
+            var target = []
+            var i, j
+            var result = {
+                subject: [],
+                subject_type: 0,
+                target: [],
+                target_type: 0
+            }
+
+            for (i = 0; i < _subject.length; i++) {
+                var tmp = {
+                    latlng: L.latLng(_subject[i].latlng.lat, _subject[i].latlng.lng),
+                    node: _subject[i].node,
+                }
+                subject.push(tmp)
+            }
+
+            for (j = 0; j < _target.length; j++) {
+                var tmp = {
+                    latlng: L.latLng(_target[j].latlng.lat, _target[j].latlng.lng),
+                    node: _target[j].node
+                }
+                target.push(tmp)
+            }
+
+            for (i = 0; i < subject.length - 1; i++) {
+                var sub_link = []
+                sub_link.push(subject[i])
+                sub_link.push(subject[i + 1])
+                sub_links.push(sub_link)
+            }
+            for (j = 0; j < target.length - 1; j++) {
+                var tar_link = []
+                tar_link.push(target[j])
+                tar_link.push(target[j + 1])
+                tar_links.push(tar_link)
+            }
+
+            for (i = 0; i < subject.length - 1; i++) {
+                for (j = 0; j < target.length - 1; j++) {
+                    var cross = getInsectionPoint(subject[i], subject[i + 1], target[j], target[j + 1])
+
+                    if (cross) {
+                        var _cross = {
+                            latlng: {
+                                lat: cross.lat,
+                                lng: cross.lng
+                            },
+                            node: true
+                        }
+
+                        var index_tar = getIndexOfArray(cross, tar_links[j])
+                        var index_sub = getIndexOfArray(cross, sub_links[i])
+
+                        var tar_s_distance = cross.distanceTo(L.latLng(target[j].latlng.lat, target[j].latlng.lng))
+                        var tar_e_distance = cross.distanceTo(L.latLng(target[j + 1].latlng.lat, target[j + 1].latlng.lng))
+
+                        var sub_s_distance = cross.distanceTo(L.latLng(subject[i].latlng.lat, subject[i].latlng.lng))
+                        var sub_e_distance = cross.distanceTo(L.latLng(subject[i + 1].latlng.lat, subject[i + 1].latlng.lng))
+                            // console.log(tar_s_distance,tar_e_distance)
+                            // console.log(sub_s_distance,sub_e_distance)
+
+                        if (tar_e_distance > 0.4 && tar_s_distance > 0.4) {
+                            tar_links[j].splice(index_tar, 0, _cross)
+                            result.target_type = 2
+                        }
+
+
+                        if (sub_e_distance > 0.4 && sub_s_distance > 0.4) {
+                            sub_links[i].splice(index_sub, 0, _cross)
+                            result.subject_type = 2
+                                // console.log(sub_links)
+                        }
+
+                    }
+                }
+            }
+
+            var tar_result = []
+            var last_link
+            var last_node
+            last_link = tar_links[tar_links.length - 1]
+            last_node = last_link[last_link.length - 1]
+                // console.log(last_link)
+                // console.log(last_node)
+            for (i = 0; i < tar_links.length; i++) {
+                for (j = 0; j < tar_links[i].length - 1; j++) {
+                    var item = tar_links[i][j]
+                    if ((tar_result.length === 0) || comparePoint(item, tar_result[tar_result.length - 1])) {
+                        tar_result.push(item)
+                    }
+                }
+            }
+            tar_result.push(last_node)
+                // console.log(tar_result)
+
+            var sub_result = []
+            last_link = sub_links[sub_links.length - 1]
+            last_node = last_link[last_link.length - 1]
+            for (i = 0; i < sub_links.length; i++) {
+                for (j = 0; j < sub_links[i].length - 1; j++) {
+                    var item = sub_links[i][j]
+                    if ((sub_result.length === 0) || comparePoint(item, sub_result[sub_result.length - 1])) {
+                        sub_result.push(item)
+                    }
+                    //sub_result.push(item)
+                }
+            }
+            sub_result.push(last_node)
+
+            result.subject = sub_result
+            result.target = tar_result
+
+            return result
+
+
+        }
+
+        function ConvertPointArray(layer) {
+            var _latlngs
+            var latlngs = layer.getLatLngs()
+            var result = []
+            var i
+
+            if (latlngs[0] instanceof L.LatLng) {
+                _latlngs = latlngs
+            } else {
+                _latlngs = latlngs[0]
+            }
+
+            for (i = 0; i < _latlngs.length; i++) {
+                var tmp = {
+                    latlng: {
+                        lat: _latlngs[i].lat,
+                        lng: _latlngs[i].lng
+                    },
+                    node: false
+                }
+                if (i === 0) {
+                    tmp.node = true
+                } else if (i === (_latlngs.length - 1)) {
+                    tmp.node = true
+                }
+                result.push(tmp)
+            }
+
+            return result
+
+        }
+
+        function getInsectionPoint(a_p1, a_p2, b_p1, b_p2) {
+            var a_start = mymap.latLngToLayerPoint(L.latLng(a_p1.latlng.lat, a_p1.latlng.lng))
+            var a_end = mymap.latLngToLayerPoint(L.latLng(a_p2.latlng.lat, a_p2.latlng.lng))
+            var b_start = mymap.latLngToLayerPoint(L.latLng(b_p1.latlng.lat, b_p1.latlng.lng))
+            var b_end = mymap.latLngToLayerPoint(L.latLng(b_p2.latlng.lat, b_p2.latlng.lng))
+
+            var cross = math.intersect([a_start.x, a_start.y], [a_end.x, a_end.y], [b_start.x, b_start.y], [b_end.x, b_end.y])
+
+            if (cross) {
+                var crossPt = L.point(cross[0], cross[1])
+                if (L.LineUtil.pointToSegmentDistance(crossPt, a_start, a_end) < 1 &&
+                    L.LineUtil.pointToSegmentDistance(crossPt, b_start, b_end) < 1) {
+                    return mymap.layerPointToLatLng(crossPt)
+                }
+            }
+            return null
+        }
+
+        function reCreateLink(old_layer, latlngs) {
+            // console.log(old_layer.getLatLngs(),latlngs)
+            var i
+            var new_latlngs = []
+            var new_links
+            for (i = 0; i < latlngs.length; i++) {
+                new_latlngs.push(latlngs[i].latlng)
+                if (latlngs[i].node) {
+                    new_links = L.polyline(new_latlngs)
+                    new_links.addTo(mymap)
+                    new_links.enableEdit()
+                    if (i < latlngs.length - 1) {
+                        new_latlngs = []
+                        new_latlngs.push(latlngs[i].latlng)
+                    }
+                }
+            }
+            mymap.removeLayer(old_layer)
+
+            return new_links
+
+        }
+
+        function getIndexOfArray(point, array) {
+            var i
+            for (i = 0; i < array.length - 1; i++) {
+                var p_p1 = mymap.latLngToLayerPoint(L.latLng(point.lat, point.lng))
+                var p_l1 = mymap.latLngToLayerPoint(L.latLng(array[i].latlng.lat, array[i].latlng.lng))
+                var p_l2 = mymap.latLngToLayerPoint(L.latLng(array[i + 1].latlng.lat, array[i + 1].latlng.lng))
+
+                if (L.LineUtil.pointToSegmentDistance(p_p1, p_l1, p_l2) <= 1) {
+                    return i + 1
+                }
+
+            }
+
+            return array.length
+
+        }
+
+        function comparePoint(p1, p2) {
+            var p_p1 = L.latLng(p1.latlng.lat, p1.latlng.lng)
+                //console.log(p2)
+            var p_p2 = L.latLng(p2.latlng.lat, p2.latlng.lng)
+            if (p_p1.distanceTo(p_p2) < 0.4) {
+                return false
+            } else {
                 return true
             }
         }
-        return false
-    }
-
-    function addSnapGuideLayersForMarker(e) {
-        if (!hasLink()) {
-            return
-        }
-        for (let i in mymap._layers) {
-            if (mymap._layers[i] instanceof L.Polyline) {
-                snap_marker.addGuideLayer(mymap._layers[i])
-            }
-        }
-    }
-
-    function checkLink() {
-        for (let i in mymap._layers) {
-            if (mymap._layers[i] instanceof L.Polyline) {
-                console.log(i)
-            }
-        }
-    }
-
-</script>
-<script>
-    function splitCross(subject) {
-        var i
-        if (target.length) {
-            for (i=0;i<target.length;i++)
-            {
-                var _subject = ConvertPointArray(subject)
-                var _target = ConvertPointArray(target[i])
-                var result = checkCross(_subject, _target)
-                _subject = result.subject
-                _target = result.target
-                if (result.target_type === 2){
-                    result.target[0].node = false
-                    reCreateLink(target[i],_target)
-                }
-
-            }
-            if (result.subject_type === 2){
-                result.subject[0].node = false
-                subject = reCreateLink(subject,_subject)
-            }
-
-
-        }
-    }
-
-    function checkCross(_subject, _target) {
-        var sub_links = []
-        var tar_links = []
-        var subject = []
-        var target = []
-        var i, j
-        var result = {
-            subject: [],
-            subject_type: 0,
-            target: [],
-            target_type: 0
-        }
-
-        for (i = 0; i < _subject.length; i++) {
-            var tmp = {
-                latlng: L.latLng(_subject[i].latlng.lat, _subject[i].latlng.lng),
-                node: _subject[i].node,
-            }
-            subject.push(tmp)
-        }
-
-        for (j = 0; j < _target.length; j++) {
-            var tmp = {
-                latlng: L.latLng(_target[j].latlng.lat, _target[j].latlng.lng),
-                node: _target[j].node
-            }
-            target.push(tmp)
-        }
-
-        for (i = 0; i < subject.length - 1; i++) {
-            var sub_link = []
-            sub_link.push(subject[i])
-            sub_link.push(subject[i + 1])
-            sub_links.push(sub_link)
-        }
-        for (j = 0; j < target.length - 1; j++) {
-            var tar_link = []
-            tar_link.push(target[j])
-            tar_link.push(target[j + 1])
-            tar_links.push(tar_link)
-        }
-
-        for (i=0;i<subject.length-1;i++){
-            for (j=0;j<target.length-1;j++){
-                var cross = getInsectionPoint(subject[i],subject[i+1],target[j],target[j+1])
-
-                if (cross){
-                    var _cross = {
-                        latlng : {lat:cross.lat,lng:cross.lng},
-                        node : true
-                    }
-
-                    var index_tar = getIndexOfArray(cross,tar_links[j])
-                    var index_sub = getIndexOfArray(cross,sub_links[i])
-
-                    var tar_s_distance = cross.distanceTo(L.latLng(target[j].latlng.lat,target[j].latlng.lng))
-                    var tar_e_distance = cross.distanceTo(L.latLng(target[j+1].latlng.lat,target[j+1].latlng.lng))
-
-                    var sub_s_distance = cross.distanceTo(L.latLng(subject[i].latlng.lat,subject[i].latlng.lng))
-                    var sub_e_distance = cross.distanceTo(L.latLng(subject[i+1].latlng.lat,subject[i+1].latlng.lng))
-                    // console.log(tar_s_distance,tar_e_distance)
-                    // console.log(sub_s_distance,sub_e_distance)
-
-                    if (tar_e_distance>0.2 && tar_s_distance>0.2){
-                        tar_links[j].splice(index_tar,0,_cross)
-                        result.target_type = 2
-                    }
-
-
-                    if (sub_e_distance>0.2 && sub_s_distance>0.2){
-                        sub_links[i].splice(index_sub,0,_cross)
-                        result.subject_type = 2
-                        // console.log(sub_links)
-                    }
-
-                }
-            }
-        }
-
-        var tar_result = []
-        var last_link
-        var last_node
-        last_link = tar_links[tar_links.length-1]
-        last_node = last_link[last_link.length-1]
-        // console.log(last_link)
-        // console.log(last_node)
-        for (i=0;i<tar_links.length;i++){
-            for(j=0;j<tar_links[i].length-1;j++){
-                var item = tar_links[i][j]
-                if ((tar_result.length===0)|| comparePoint(item,tar_result[tar_result.length-1]))
-                {
-                    tar_result.push(item)
-                }
-            }
-        }
-        tar_result.push(last_node)
-        // console.log(tar_result)
-
-        var sub_result = []
-        last_link = sub_links[sub_links.length-1]
-        last_node = last_link[last_link.length-1]
-        for(i=0;i<sub_links.length;i++){
-            for(j=0;j<sub_links[i].length-1;j++){
-                var item = sub_links[i][j]
-                if ((sub_result.length===0)|| comparePoint(item,sub_result[sub_result.length-1]))
-                {
-                    sub_result.push(item)
-                }
-                //sub_result.push(item)
-            }
-        }
-        sub_result.push(last_node)
-
-        result.subject = sub_result
-        result.target = tar_result
-
-        return result
-
-
-    }
-
-    function ConvertPointArray(layer) {
-        var _latlngs
-        var latlngs = layer.getLatLngs()
-        var result = []
-        var i
-
-        if (latlngs[0] instanceof L.LatLng) {
-            _latlngs = latlngs
-        }
-        else {
-            _latlngs = latlngs[0]
-        }
-
-        for (i = 0; i < _latlngs.length; i++) {
-            var tmp = {
-                latlng: {lat: _latlngs[i].lat, lng: _latlngs[i].lng},
-                node: false
-            }
-            if (i === 0) {
-                tmp.node = true
-            }
-            else if (i === (_latlngs.length - 1)) {
-                tmp.node = true
-            }
-            result.push(tmp)
-        }
-
-        return result
-
-    }
-
-    function getInsectionPoint(a_p1, a_p2, b_p1, b_p2) {
-        var a_start = mymap.latLngToLayerPoint(L.latLng(a_p1.latlng.lat, a_p1.latlng.lng))
-        var a_end = mymap.latLngToLayerPoint(L.latLng(a_p2.latlng.lat, a_p2.latlng.lng))
-        var b_start = mymap.latLngToLayerPoint(L.latLng(b_p1.latlng.lat, b_p1.latlng.lng))
-        var b_end = mymap.latLngToLayerPoint(L.latLng(b_p2.latlng.lat, b_p2.latlng.lng))
-
-        var cross = math.intersect([a_start.x,a_start.y],[a_end.x,a_end.y],[b_start.x,b_start.y],[b_end.x,b_end.y])
-
-        if (cross){
-            var crossPt = L.point(cross[0],cross[1])
-            if (L.LineUtil.pointToSegmentDistance(crossPt,a_start,a_end)<1 &&
-            L.LineUtil.pointToSegmentDistance(crossPt,b_start,b_end)<1) {
-                return mymap.layerPointToLatLng(crossPt)
-            }
-        }
-        return null
-    }
-
-    function reCreateLink(old_layer,latlngs) {
-        // console.log(old_layer.getLatLngs(),latlngs)
-        var i
-        var new_latlngs = []
-        var new_links
-        for (i=0;i<latlngs.length;i++){
-            new_latlngs.push(latlngs[i].latlng)
-            if (latlngs[i].node){
-                new_links = L.polyline(new_latlngs)
-                new_links.addTo(mymap)
-                new_links.enableEdit()
-                if (i<latlngs.length-1){
-                    new_latlngs = []
-                    new_latlngs.push(latlngs[i].latlng)
-                }
-            }
-        }
-        mymap.removeLayer(old_layer)
-
-        return new_links
-
-    }
-
-    function getIndexOfArray(point,array) {
-        var i
-        for (i=0;i<array.length-1;i++){
-            var p_p1 = mymap.latLngToLayerPoint(L.latLng(point.lat,point.lng))
-            var p_l1 = mymap.latLngToLayerPoint(L.latLng(array[i].latlng.lat,array[i].latlng.lng))
-            var p_l2 = mymap.latLngToLayerPoint(L.latLng(array[i+1].latlng.lat,array[i+1].latlng.lng))
-
-            if(L.LineUtil.pointToSegmentDistance(p_p1,p_l1,p_l2) <= 1){
-                return i+1
-            }
-
-        }
-
-        return array.length
-
-    }
-
-    function comparePoint(p1,p2) {
-        var p_p1 = L.latLng(p1.latlng.lat,p1.latlng.lng)
-        //console.log(p2)
-        var p_p2 = L.latLng(p2.latlng.lat,p2.latlng.lng)
-        if (p_p1.distanceTo(p_p2)<0.2){
-            return false
-        }
-        else {
-            return true
-        }
-    }
-</script>
+    </script>
 </body>
-</html>
 
+</html>
