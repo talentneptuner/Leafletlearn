@@ -27,7 +27,7 @@
         var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: "1234",
             maxZoom: 18, //25
-            minZoom: 1,
+            minZoom: 18,
 
         })
 
@@ -35,7 +35,7 @@
 
         var target = []
 
-        //吸附点和吸附监听器
+        // 全局吸附点和吸附监听器
         snapMarker = L.marker(mymap.getCenter(), {
             icon: mymap.editTools.createVertexIcon({
                 className: 'leaflet-div-icon leaflet-drawing-icon'
@@ -47,6 +47,7 @@
             snapDistance: 15,
             snapVertices: true,
         })
+
 
         var followMouse = function(e) {
             snapMarker.setLatLng(e.latlng)
@@ -89,7 +90,11 @@
         })
 
         mymap.on('editable:vertex:dragstart', function(e) {
-            console.log('顶点移动了')
+            // console.log('顶点移动了')
+            // mymap.editTools.stopDrawing()
+            // snap_marker.watchMarker(e.vertex)
+            // snap_marker.clearGuideLayers()
+            // addSnapGuideLayersForMarker(e)
             target = []
             var i
             for (i in mymap._layers) {
@@ -100,10 +105,15 @@
         })
         mymap.on('editable:vertex:dragend', function(e) {
             // console.log('ddd')
+            // snap_marker.unwatchMarker(e.vertex)
+            // snap_marker.clearGuideLayers()
             splitCross(e.layer)
         })
         var addToTarget = function(e) {
             // console.log('拖动事件')
+            e.layer.setStyle({
+                color: '#FF3399'
+            })
             target = []
             for (let i in mymap._layers) {
                 layer = mymap._layers[i]
@@ -114,6 +124,9 @@
         }
         var split = function(e) {
             // console.log('拖动结束')
+            e.layer.setStyle({
+                color: '#3388ff'
+            })
             splitCross(e.layer)
         }
     </script>
@@ -139,7 +152,7 @@
                 return
             }
             for (let i in mymap._layers) {
-                if (mymap._layers[i] instanceof L.Polyline) {
+                if (mymap._layers[i] instanceof L.Polyline && mymap._layers[i]._leaflet_id !== e.layer._leaflet_id) {
                     snap_marker.addGuideLayer(mymap._layers[i])
                 }
             }
@@ -175,7 +188,7 @@
                 }
                 if (_subject_type) {
                     _subject[0].node = false
-                    subject = reCreateLink(subject, _subject)
+                    reCreateLink(subject, _subject)
                 }
 
 
