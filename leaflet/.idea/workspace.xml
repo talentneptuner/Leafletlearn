@@ -56,29 +56,42 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="309673955">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="html" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="HTML" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="html" value="326" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="HTML" value="326" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/template/linkcut.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
-              <caret line="68" column="43" lean-forward="true" selection-start-line="68" selection-start-column="43" selection-end-line="68" selection-end-column="43" />
-              <folding>
-                <element signature="e#2425#2548#0" />
-                <element signature="e#2573#2750#0" />
-                <element signature="e#2796#3039#0" />
-                <element signature="e#3066#3225#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/template/editsnap.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="421">
-              <caret line="132" column="38" lean-forward="true" selection-start-line="132" selection-start-column="38" selection-end-line="132" selection-end-column="38" />
+            <state relative-caret-position="3921">
+              <caret line="414" column="40" lean-forward="true" selection-start-line="414" selection-start-column="40" selection-end-line="414" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -113,8 +126,9 @@
         <option value="$PROJECT_DIR$/template/mapeditable.html" />
         <option value="$PROJECT_DIR$/static/js/leaflet.snap.js" />
         <option value="$PROJECT_DIR$/template/paint.html" />
-        <option value="$PROJECT_DIR$/template/linkcut.html" />
         <option value="$PROJECT_DIR$/template/editsnap.html" />
+        <option value="$PROJECT_DIR$/template/linkcut2.html" />
+        <option value="$PROJECT_DIR$/template/linkcut.html" />
       </list>
     </option>
   </component>
@@ -125,8 +139,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="475" />
-    <option name="width" value="1010" />
+    <option name="x" value="-10" />
+    <option name="width" value="1170" />
     <option name="height" value="1090" />
   </component>
   <component name="ProjectView">
@@ -134,7 +148,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -175,12 +188,13 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../leaflet/01" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="Errors" />
@@ -240,17 +254,18 @@
       <workItem from="1534899523236" duration="105000" />
       <workItem from="1534905371171" duration="8726000" />
       <workItem from="1534925108797" duration="2943000" />
+      <workItem from="1535080829984" duration="4461000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="97609000" />
+    <option name="totallyTimeSpent" value="102070000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="878" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="878" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.110303834" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18494056" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -288,7 +303,7 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/static/js/leaflet.ChineseTmsProviders.js" />
-    <entry file="file://$USER_HOME$/Downloads/Leaflet.ChineseTmsProviders-master/Leaflet.ChineseTmsProviders-master/examples/indexGaoDe.html" />
+    <entry file="file://$PROJECT_DIR$/../../Leaflet.ChineseTmsProviders-master/Leaflet.ChineseTmsProviders-master/examples/indexGaoDe.html" />
     <entry file="file://$PROJECT_DIR$/static/css/images/layers.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
@@ -366,23 +381,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/template/linkcut.html">
+    <entry file="file://$PROJECT_DIR$/template/editsnap.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="68" column="43" lean-forward="true" selection-start-line="68" selection-start-column="43" selection-end-line="68" selection-end-column="43" />
-          <folding>
-            <element signature="e#2425#2548#0" />
-            <element signature="e#2573#2750#0" />
-            <element signature="e#2796#3039#0" />
-            <element signature="e#3066#3225#0" />
-          </folding>
+        <state relative-caret-position="3300">
+          <caret line="132" column="38" selection-start-line="132" selection-start-column="38" selection-end-line="132" selection-end-column="38" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/template/editsnap.html">
+    <entry file="file://$PROJECT_DIR$/template/linkcut2.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="421">
-          <caret line="132" column="38" lean-forward="true" selection-start-line="132" selection-start-column="38" selection-end-line="132" selection-end-column="38" />
+        <state relative-caret-position="282">
+          <caret line="458" column="40" selection-start-line="458" selection-start-column="40" selection-end-line="458" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/template/linkcut.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3921">
+          <caret line="414" column="40" lean-forward="true" selection-start-line="414" selection-start-column="40" selection-end-line="414" selection-end-column="40" />
         </state>
       </provider>
     </entry>

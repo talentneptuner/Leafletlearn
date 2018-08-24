@@ -11,6 +11,7 @@
     <div style="height: 700px" id="mymap"></div>
     <button onclick="begin()">开始画图</button>
     <button onclick="checkLink()">检测线段</button>
+    <script src="../static/js/jquery-1.11.3.min.js"></script>
     <script src="../static/js/leaflet.js"></script>
     <script src="../static/js/leaflet-src.js"></script>
     <script src="../static/js/Path.Drag.js"></script>
@@ -22,7 +23,7 @@
         // 初始化地图
         var mymap = L.map('mymap', {
             editable: true
-        }).setView([30.50, 114.33], 18);
+        }).setView([25.4375, 119.0325], 18);
 
         var gdmap = L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: "1234",
@@ -102,7 +103,8 @@
             // snap_marker.clearGuideLayers()
             // addSnapGuideLayersForMarker(e)
             target = []
-            for (let i in mymap._layers) {
+            var i
+            for (i in mymap._layers) {
                 if (mymap._layers[i] instanceof L.Polyline && mymap._layers[i]._leaflet_id !== e.layer._leaflet_id) {
                     target.push(mymap._layers[i])
                 }
@@ -115,7 +117,6 @@
             // snap_marker.unwatchMarker(e.vertex)
             // snap_marker.clearGuideLayers()
             splitCross(e.layer)
-            target = []
         })
 
         // 拖动时把图层添加到对比图层
@@ -126,7 +127,7 @@
             })
             target = []
             for (let i in mymap._layers) {
-                var layer = mymap._layers[i]
+                layer = mymap._layers[i]
                 if (layer instanceof L.Polyline && e.layer._leaflet_id !== mymap._layers[i]._leaflet_id) {
                     target.push(layer)
                 }
@@ -141,7 +142,6 @@
                 color: '#3388ff'
             })
             splitCross(e.layer)
-            target = []
         }
     </script>
     <script>
@@ -400,27 +400,15 @@
                     new_links.enableEdit()
                     new_links.on('dragstart', addToTarget)
                     new_links.on('dragend', split)
-                    var _distance = 0, _latlngs = new_links.getLatLngs();
-                    for (var j = 0; j < _latlngs.length - 1; j++) {
-                        _distance += _latlngs[j].distanceTo(_latlngs[j + 1]);
-                    }
-                    _distance = math.round(_distance, 2);
-
-                    if (_distance < 1) {
-                        mymap.removeLayer(newLink);
-                        new_latlngs.pop();
-                        continue;
-                    }
                     if (i < latlngs.length - 1) {
                         new_latlngs = []
                         new_latlngs.push(latlngs[i].latlng)
                     }
-
                 }
             }
             mymap.removeLayer(old_layer)
 
-            // return new_links
+            return new_links
 
         }
 
@@ -453,6 +441,30 @@
                 return true
             }
         }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "http://36.111.84.127:8001/putianService/cellod/qwx?year=2018&season=2&hour=08&datetag=1&minvol=0&maxvol=300&dataSource=0&id=32619,32339,32618,32338&token=44ab42507de44ffe84452e953805a6e1",
+                async: true,
+                success: function (data) {
+                    var i
+                    console.log(data)
+                    for (i=0;i<data.length;i++){
+                        sNode = L.latLng(data[i].o_lat,data[i].o_lon)
+                        eNode = L.latLng(data[i].d_lat,data[i].d_lon)
+                        link = L.polyline([sNode,eNode]).addTo(mymap)
+                        link.enableEdit()
+                        link.attr = {
+                            snode_uuid : data[i].o_gridtazid,
+                            enode_uuid : data[i].d_gridtazid
+                        }
+                    }
+                },
+            });
+        })
     </script>
 </body>
 
